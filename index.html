@@ -2,256 +2,641 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Digital LR Generator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root {
-      --brand: #1f4b99;
-      --text: #222;
-      --muted: #666;
-    }
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 0; background: #f7f8fb; color: var(--text); }
-    header { background: var(--brand); color: #fff; padding: 16px 24px; }
-    header h1 { margin: 0; font-size: 20px; }
-    main { display: grid; grid-template-columns: 380px 1fr; gap: 16px; padding: 16px; }
-    .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
-    .card h2 { margin: 0; padding: 12px 16px; border-bottom: 1px solid #eee; font-size: 16px; }
-    .card .content { padding: 12px 16px; }
-    label { display: block; font-size: 13px; color: var(--muted); margin-top: 10px; }
-    input, select, textarea {
-      width: 100%; padding: 10px 12px; font-size: 14px;
-      border: 1px solid #cfd8dc; border-radius: 6px; background: #fff;
-    }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    .actions { display: flex; gap: 8px; margin-top: 12px; }
-    button {
-      padding: 10px 14px; border-radius: 6px; border: 1px solid #1f4b99;
-      background: #1f4b99; color: #fff; cursor: pointer; font-weight: 600;
-    }
-    button.secondary { border-color: #cfd8dc; background: #fff; color: #333; }
-    /* LR preview styles */
-    #lrPreview { padding: 24px; }
-    .lr-sheet {
-      background: #fff; color: #000; width: 210mm; min-height: 297mm; /* A4 size */
-      margin: 0 auto; border: 1px solid #e5e7eb; padding: 24px;
-      box-sizing: border-box;
-    }
-    .lr-header { display: flex; justify-content: space-between; align-items: center; }
-    .lr-brand { font-size: 18px; font-weight: 700; color: var(--brand); }
-    .lr-meta { text-align: right; font-size: 13px; color: var(--muted); }
-    .lr-section { margin-top: 12px; border: 1px dashed #ddd; padding: 12px; }
-    .lr-section h3 { margin: 0 0 8px 0; font-size: 14px; color: var(--brand); }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-    .kv { font-size: 14px; }
-    .kv span { color: var(--muted); font-size: 12px; display: block; }
-    .note { font-size: 12px; color: var(--muted); }
-    @media print {
-      header, main .card:first-child { display: none; }
-      .lr-sheet { border: none; box-shadow: none; }
-      body { background: #fff; }
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>Digital LR — Pro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root {
+    --brand: #1849b5;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --bg: #f7f8fb;
+    --ok: #16a34a;
+    --warn: #eab308;
+    --err: #dc2626;
+    --border: #e5e7eb;
+  }
+  /* Layout */
+  body { margin:0; font-family: Inter, system-ui, Segoe UI, Roboto, Arial; color:var(--text); background:var(--bg); }
+  header { background:var(--brand); color:#fff; padding:16px 24px; display:flex; align-items:center; justify-content:space-between; }
+  header h1 { margin:0; font-size:18px; font-weight:700; }
+  header small { opacity:.85; }
+  main { display:grid; grid-template-columns: 420px 1fr; gap:16px; padding:16px; }
+  .card { background:#fff; border:1px solid var(--border); border-radius:10px; box-shadow:0 1px 2px rgba(0,0,0,.04); }
+  .card h2 { margin:0; padding:12px 16px; border-bottom:1px solid var(--border); font-size:16px; }
+  .card .content { padding:12px 16px; }
+  label { display:block; font-size:12px; color:var(--muted); margin-top:10px; }
+  input, select, textarea {
+    width:100%; padding:10px 12px; font-size:14px; border:1px solid #cfd8dc; border-radius:8px; background:#fff;
+  }
+  textarea { resize:vertical; }
+  .grid-2 { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+  .grid-3 { display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; }
+  .hint { font-size:12px; color:var(--muted); margin-top:6px; }
+  .actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+  button {
+    padding:10px 12px; border-radius:8px; border:1px solid var(--brand);
+    background:var(--brand); color:#fff; cursor:pointer; font-weight:600;
+  }
+  button.secondary { border-color:#cfd8dc; background:#fff; color:#334155; }
+  button.warn { border-color:var(--warn); background:var(--warn); }
+  button.danger { border-color:var(--err); background:var(--err); }
+  .tags { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+  .tag { font-size:11px; border:1px solid var(--border); padding:4px 8px; border-radius:999px; background:#fafafa; }
+  .error { color:var(--err); font-size:12px; margin-top:6px; }
+  /* Preview sheet (A4) */
+  #lrPreview { padding:16px; }
+  .lr-sheet {
+    width:210mm; min-height:297mm; margin:0 auto; background:#fff; color:#000;
+    border:1px solid var(--border); box-sizing:border-box; padding:24px;
+  }
+  .lr-header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+  .lr-brand { font-size:18px; font-weight:800; color:var(--brand); }
+  .lr-meta { text-align:right; font-size:13px; color:#111; }
+  .lr-company { font-size:12px; color:#111; margin-top:4px; }
+  .lr-section { margin-top:12px; border:1px dashed #ddd; padding:12px; }
+  .lr-section h3 { margin:0 0 8px 0; font-size:14px; color:var(--brand); }
+  .row-2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .row-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+  .kv { font-size:14px; }
+  .kv span { color:var(--muted); font-size:12px; display:block; }
+  .note { font-size:12px; color:var(--muted); }
+  .qr-box { display:flex; gap:12px; align-items:center; margin-top:8px; }
+  .sig-box { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:8px; }
+  canvas { border:1px solid #cfd8dc; border-radius:8px; background:#fff; }
+  table.list { width:100%; border-collapse:collapse; font-size:13px; }
+  table.list th, table.list td { border:1px solid var(--border); padding:8px; text-align:left; }
+  table.list th { background:#fafafa; }
+  @media print {
+    header, main .card:first-child, .actions-print { display:none; }
+    body { background:#fff; }
+    .lr-sheet { border:none; box-shadow:none; }
+  }
+</style>
 </head>
 <body>
-  <header>
-    <h1>Digital LR Generator</h1>
-  </header>
 
-  <main>
-    <!-- Left: Form -->
-    <section class="card">
-      <h2>LR Details</h2>
-      <div class="content" id="lrForm">
-        <div class="grid-2">
-          <div>
-            <label>LR No.</label>
-            <input id="lrNo" placeholder="e.g., 2026-0001" />
-          </div>
-          <div>
-            <label>Date</label>
-            <input id="lrDate" type="date" />
-          </div>
+<!-- Brand Config (edit these) -->
+<script>
+const COMPANY_NAME  = "Parichay Logistics";
+const COMPANY_GSTIN = "29XXXXXXXXXXXX";  // put your GSTIN or leave blank
+const COMPANY_ADDR  = "Bengaluru, Karnataka — India";
+</script>
+
+<header>
+  <div>
+    <h1>Digital LR — Pro</h1>
+    <small>Fast • Paperless • Print‑Perfect</small>
+  </div>
+  <div class="row">
+    <button class="secondary" onclick="exportCSV()">Export CSV</button>
+    <button class="secondary" onclick="exportJSON()">Export JSON</button>
+    <button class="secondary" onclick="resetAllConfirm()">Reset App</button>
+  </div>
+</header>
+
+<main>
+  <!-- Left: Form & Masters -->
+  <section class="card">
+    <h2>LR Entry</h2>
+    <div class="content" id="formWrap">
+      <div class="grid-2">
+        <div>
+          <label>LR No. (auto)</label>
+          <input id="lrNo" placeholder="auto" readonly />
+          <div class="hint">Format: YYYYMMDD‑### (daily sequence)</div>
         </div>
-
-        <label>Consignor (Name & Address)</label>
-        <textarea id="consignor" rows="2" placeholder="Consignor name, address, GSTIN"></textarea>
-
-        <label>Consignee (Name & Address)</label>
-        <textarea id="consignee" rows="2" placeholder="Consignee name, address, GSTIN"></textarea>
-
-        <div class="grid-2">
-          <div>
-            <label>Origin</label>
-            <select id="origin">
-              <option value="">Select</option>
-              <option>Bengaluru</option>
-              <option>Mumbai</option>
-              <option>Chennai</option>
-              <option>Hyderabad</option>
-            </select>
-          </div>
-          <div>
-            <label>Destination</label>
-            <select id="destination">
-              <option value="">Select</option>
-              <option>Bengaluru</option>
-              <option>Mumbai</option>
-              <option>Chennai</option>
-              <option>Hyderabad</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="grid-3">
-          <div>
-            <label>Vehicle No.</label>
-            <input id="vehicleNo" placeholder="KA-01-AB-1234" />
-          </div>
-          <div>
-            <label>Driver Name</label>
-            <input id="driverName" placeholder="Driver name" />
-          </div>
-          <div>
-            <label>Broker</label>
-            <input id="broker" placeholder="Broker name" />
-          </div>
-        </div>
-
-        <label>Goods Description</label>
-        <textarea id="goods" rows="3" placeholder="Items, qty, weight, packaging"></textarea>
-
-        <label>Remarks (Optional)</label>
-        <textarea id="remarks" rows="2" placeholder="Special instructions or notes"></textarea>
-
-        <div class="actions">
-          <button id="btnPreview">Preview</button>
-          <button class="secondary" id="btnReset" type="button">Reset</button>
-          <button class="secondary" id="btnSave" type="button">Save Defaults</button>
-        </div>
-        <p class="note">Tip: “Save Defaults” stores common values (like origin/destination) in your browser for faster future entries.</p>
-      </div>
-    </section>
-
-    <!-- Right: Preview -->
-    <section class="card">
-      <h2>Print Preview</h2>
-      <div class="content" id="lrPreview">
-        <div class="lr-sheet" id="lrSheet">
-          <div class="lr-header">
-            <div class="lr-brand">Parichay Logistics — Lorry Receipt</div>
-            <div class="lr-meta">
-              <div><strong>LR No:</strong> <span id="p_lrNo">—</span></div>
-              <div><strong>Date:</strong> <span id="p_lrDate">—</span></div>
-            </div>
-          </div>
-
-          <div class="lr-section">
-            <h3>Parties</h3>
-            <div class="row">
-              <div class="kv"><span>Consignor</span><div id="p_consignor">—</div></div>
-              <div class="kv"><span>Consignee</span><div id="p_consignee">—</div></div>
-            </div>
-          </div>
-
-          <div class="lr-section">
-            <h3>Route & Vehicle</h3>
-            <div class="row-3">
-              <div class="kv"><span>Origin</span><div id="p_origin">—</div></div>
-              <div class="kv"><span>Destination</span><div id="p_destination">—</div></div>
-              <div class="kv"><span>Vehicle No.</span><div id="p_vehicleNo">—</div></div>
-            </div>
-            <div class="row-3" style="margin-top:8px;">
-              <div class="kv"><span>Driver Name</span><div id="p_driverName">—</div></div>
-              <div class="kv"><span>Broker</span><div id="p_broker">—</div></div>
-              <div class="kv"><span>—</span></div>
-            </div>
-          </div>
-
-          <div class="lr-section">
-            <h3>Goods</h3>
-            <div class="kv" id="p_goods">—</div>
-          </div>
-
-          <div class="lr-section">
-            <h3>Remarks</h3>
-            <div class="kv" id="p_remarks">—</div>
-          </div>
-
-          <div class="lr-section">
-            <h3>Signatures</h3>
-            <div class="row">
-              <div class="kv">
-                <span>Issued By</span>
-                <div>Authorized Signatory</div>
-              </div>
-              <div class="kv">
-                <span>Driver / Receiver</span>
-                <div>Signature & Stamp</div>
-              </div>
-            </div>
-          </div>
-
-          <p class="note">This LR is system-generated. For queries, contact support@parichay-logistics.in</p>
-        </div>
-        <div class="actions" style="margin-top:12px;">
-          <button onclick="window.print()">Print LR</button>
+        <div>
+          <label>Date</label>
+          <input id="lrDate" type="date" />
         </div>
       </div>
-    </section>
-  </main>
 
-  <script>
-    // Load defaults from localStorage
-    window.addEventListener('DOMContentLoaded', () => {
-      const defaults = JSON.parse(localStorage.getItem('lrDefaults') || '{}');
-      Object.entries(defaults).forEach(([k, v]) => {
-        const el = document.getElementById(k);
-        if (el) el.value = v;
-      });
-    });
+      <label>Consignor</label>
+      <div class="row">
+        <select id="consignorSel"></select>
+        <button class="secondary" type="button" onclick="promptMaster('consignors')">+ Add</button>
+      </div>
 
-    // Reset form
-    document.getElementById('btnReset').addEventListener('click', () => {
-      document.querySelectorAll('#lrForm input, #lrForm textarea, #lrForm select')
-        .forEach(el => el.value = '');
-      updatePreview(); // clear preview
-    });
+      <label>Consignee</label>
+      <div class="row">
+        <select id="consigneeSel"></select>
+        <button class="secondary" type="button" onclick="promptMaster('consignees')">+ Add</button>
+      </div>
 
-    // Save defaults
-    document.getElementById('btnSave').addEventListener('click', () => {
-      const keys = ['origin','destination','broker'];
-      const data = {};
-      keys.forEach(k => data[k] = document.getElementById(k).value);
-      localStorage.setItem('lrDefaults', JSON.stringify(data));
-      alert('Defaults saved.');
-    });
+      <div class="grid-2">
+        <div>
+          <label>Origin City</label>
+          <div class="row">
+            <select id="originSel"></select>
+            <button class="secondary" type="button" onclick="promptMaster('cities')">+ Add</button>
+          </div>
+        </div>
+        <div>
+          <label>Destination City</label>
+          <div class="row">
+            <select id="destSel"></select>
+            <button class="secondary" type="button" onclick="promptMaster('cities')">+ Add</button>
+          </div>
+        </div>
+      </div>
 
-    // Preview handler
-    document.getElementById('btnPreview').addEventListener('click', () => {
-      // Minimal validation
-      const required = ['lrNo','lrDate','consignor','consignee','origin','destination','vehicleNo'];
-      const missing = required.filter(id => !document.getElementById(id).value.trim());
-      if (missing.length) {
-        alert('Please fill required fields: ' + missing.join(', '));
-        return;
-      }
-      updatePreview();
-    });
+      <div class="grid-3">
+        <div>
+          <label>Vehicle No.</label>
+          <input id="vehicleNo" placeholder="KA-01-AB-1234" />
+        </div>
+        <div>
+          <label>Driver Name</label>
+          <input id="driverName" placeholder="Driver name" />
+        </div>
+        <div>
+          <label>Broker</label>
+          <div class="row">
+            <select id="brokerSel"></select>
+            <button class="secondary" type="button" onclick="promptMaster('brokers')">+ Add</button>
+          </div>
+        </div>
+      </div>
 
-    function updatePreview() {
-      const ids = [
-        'lrNo','lrDate','consignor','consignee',
-        'origin','destination','vehicleNo','driverName','broker','goods','remarks'
-      ];
-      ids.forEach(id => {
-        const src = document.getElementById(id);
-        const dst = document.getElementById('p_' + id);
-        if (src && dst) dst.textContent = src.value.trim() || '—';
-      });
-    }
-  </script>
+      <label>Goods Description</label>
+      <textarea id="goods" rows="3" placeholder="Items, qty, weight, packaging"></textarea>
+
+      <label>Remarks (Optional)</label>
+      <textarea id="remarks" rows="2" placeholder="Special instructions or notes"></textarea>
+
+      <div class="grid-2">
+        <div>
+          <label>Issuer Signature (draw)</label>
+          <canvas id="sigIssuer" width="300" height="120"></canvas>
+          <div class="row">
+            <button class="secondary" type="button" onclick="clearSig('sigIssuer')">Clear</button>
+          </div>
+        </div>
+        <div>
+          <label>Driver/Receiver Signature (draw)</label>
+          <canvas id="sigDriver" width="300" height="120"></canvas>
+          <div class="row">
+            <button class="secondary" type="button" onclick="clearSig('sigDriver')">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button onclick="previewLR()">Preview</button>
+        <button class="secondary" type="button" onclick="newLR()">New LR</button>
+        <button class="secondary" type="button" onclick="duplicateLR()">Duplicate</button>
+        <button class="warn" type="button" onclick="shareWhatsApp()">WhatsApp Text</button>
+        <button class="danger" type="button" onclick="deleteCurrent()">Delete LR</button>
+      </div>
+      <div id="errors" class="error"></div>
+
+      <div class="tags">
+        <span class="tag">Auto numbering</span>
+        <span class="tag">Masters: consignor/consignee/cities/brokers</span>
+        <span class="tag">Canvas signature</span>
+        <span class="tag">QR code</span>
+        <span class="tag">Export CSV/JSON</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Right: Print Preview & Recent LRs -->
+  <section class="card">
+    <h2>Print Preview</h2>
+    <div class="content">
+      <div class="lr-sheet" id="lrSheet">
+        <div class="lr-header">
+          <div>
+            <div class="lr-brand" id="p_brand">Parichay Logistics — Lorry Receipt</div>
+            <div class="lr-company" id="p_company">
+              GSTIN: <span id="p_gstin">—</span> · <span id="p_addr">—</span>
+            </div>
+          </div>
+          <div class="lr-meta">
+            <div><strong>LR No:</strong> <span id="p_lrNo">—</span></div>
+            <div><strong>Date:</strong> <span id="p_lrDate">—</span></div>
+            <div class="qr-box">
+              <div id="qrcode"></div>
+              <div class="note">Scan to verify LR details</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lr-section">
+          <h3>Parties</h3>
+          <div class="row-2">
+            <div class="kv"><span>Consignor</span><div id="p_consignor">—</div></div>
+            <div class="kv"><span>Consignee</span><div id="p_consignee">—</div></div>
+          </div>
+        </div>
+
+        <div class="lr-section">
+          <h3>Route & Vehicle</h3>
+          <div class="row-3">
+            <div class="kv"><span>Origin</span><div id="p_origin">—</div></div>
+            <div class="kv"><span>Destination</span><div id="p_dest">—</div></div>
+            <div class="kv"><span>Vehicle No.</span><div id="p_vehicleNo">—</div></div>
+          </div>
+          <div class="row-3" style="margin-top:8px;">
+            <div class="kv"><span>Driver</span><div id="p_driverName">—</div></div>
+            <div class="kv"><span>Broker</span><div id="p_broker">—</div></div>
+            <div class="kv"><span>—</span></div>
+          </div>
+        </div>
+
+        <div class="lr-section">
+          <h3>Goods</h3>
+          <div class="kv" id="p_goods">—</div>
+        </div>
+
+        <div class="lr-section">
+          <h3>Remarks</h3>
+          <div class="kv" id="p_remarks">—</div>
+        </div>
+
+        <div class="lr-section">
+          <h3>Signatures</h3>
+          <div class="sig-box">
+            <div>
+              <span class="note">Issued By</span>
+              <img id="p_sigIssuer" alt="issuer sign" style="max-width:300px; max-height:120px;" />
+            </div>
+            <div>
+              <span class="note">Driver / Receiver</span>
+              <img id="p_sigDriver" alt="driver sign" style="max-width:300px; max-height:120px;" />
+            </div>
+          </div>
+        </div>
+
+        <p class="note">This LR is system‑generated. For queries, contact support@parichay‑logistics.in</p>
+      </div>
+
+      <div class="actions actions-print" style="margin-top:12px;">
+        <button onclick="window.print()">Print / Save PDF</button>
+      </div>
+
+      <h2 style="margin-top:20px;">Recent LRs</h2>
+      <div class="content">
+        <table class="list" id="listTable">
+          <thead>
+            <tr>
+              <th>LR No</th><th>Date</th><th>Consignor</th><th>Consignee</th><th>Route</th><th>Vehicle</th><th>Broker</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="listBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- QR Code library (tiny) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-RW6S6aX8I7R7kIYSPcYJ8DpoUcbYlqBsk9fP5QZsnHJRQ5qXH3xTL6ZyEeI8l2gA5iJvQyH2w6sdIh0C0+8NVA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+/* ========= State & Storage ========= */
+const DB_KEY = 'lrProDB';
+const MASTER_KEY = 'lrProMasters';
+let db = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
+let masters = JSON.parse(localStorage.getItem(MASTER_KEY) || '{}');
+const todayStr = () => new Date().toISOString().slice(0,10);
+
+const defaultMasters = {
+  consignors: ["ACME Foods Pvt Ltd — GSTIN 29AAAAA0000A1Z5", "MegaMart Ltd — GSTIN 29BBBBB1111B2Z6"],
+  consignees: ["FreshBazaar Warehousing", "SuperChain Distribution Center"],
+  cities: ["Bengaluru","Mumbai","Chennai","Hyderabad","Pune","Delhi"],
+  brokers: ["Suresh Trans Brokers","Ravi Logistics Brokers","Meena Freight Links"]
+};
+
+/* ========= Init ========= */
+window.addEventListener('DOMContentLoaded', () => {
+  // Brand display
+  document.getElementById('p_gstin').textContent = COMPANY_GSTIN || '—';
+  document.getElementById('p_addr').textContent  = COMPANY_ADDR;
+  document.getElementById('p_brand').textContent = `${COMPANY_NAME} — Lorry Receipt`;
+
+  // Masters merge
+  masters = { ...defaultMasters, ...masters };
+  localStorage.setItem(MASTER_KEY, JSON.stringify(masters));
+
+  // Fill selects
+  fillSelect('consignorSel', masters.consignors);
+  fillSelect('consigneeSel', masters.consignees);
+  fillSelect('originSel', masters.cities);
+  fillSelect('destSel', masters.cities);
+  fillSelect('brokerSel', masters.brokers);
+
+  // Defaults
+  document.getElementById('lrDate').value = todayStr();
+  autoLRNo();
+  renderList();
+
+  // Signature canvas events
+  ['sigIssuer','sigDriver'].forEach(id => setupCanvasDraw(id));
+});
+
+/* ========= Helpers ========= */
+function fillSelect(id, arr) {
+  const sel = document.getElementById(id);
+  sel.innerHTML = '';
+  sel.appendChild(new Option('Select', ''));
+  arr.forEach(v => sel.appendChild(new Option(v, v)));
+}
+
+function promptMaster(key) {
+  const v = prompt(`Add new to ${key} list:`);
+  if (!v || !v.trim()) return;
+  masters[key] = masters[key] || [];
+  masters[key].push(v.trim());
+  localStorage.setItem(MASTER_KEY, JSON.stringify(masters));
+  // re-populate
+  if (key === 'consignors') fillSelect('consignorSel', masters.consignors);
+  if (key === 'consignees') fillSelect('consigneeSel', masters.consignees);
+  if (key === 'cities') { fillSelect('originSel', masters.cities); fillSelect('destSel', masters.cities); }
+  if (key === 'brokers') fillSelect('brokerSel', masters.brokers);
+}
+
+function autoLRNo() {
+  const d = document.getElementById('lrDate').value || todayStr();
+  const compact = d.replaceAll('-',''); // YYYYMMDD
+  // count existing for this date
+  const count = db.filter(x => x.lrDate === d).length + 1;
+  const seq = String(count).padStart(3, '0');
+  document.getElementById('lrNo').value = `${compact}-${seq}`;
+}
+
+function validate() {
+  const req = ['lrNo','lrDate','consignorSel','consigneeSel','originSel','destSel','vehicleNo'];
+  const missing = req.filter(id => {
+    const el = document.getElementById(id);
+    const val = (el.tagName === 'SELECT') ? el.value : el.value.trim();
+    return !val;
+  });
+  document.getElementById('errors').textContent = missing.length ? ('Please fill: ' + missing.join(', ')) : '';
+  return missing.length === 0;
+}
+
+function captureSig(id) {
+  const cv = document.getElementById(id);
+  return cv.toDataURL('image/png');
+}
+
+function clearSig(id) {
+  const cv = document.getElementById(id);
+  const ctx = cv.getContext('2d');
+  ctx.clearRect(0,0,cv.width,cv.height);
+}
+
+function setupCanvasDraw(id) {
+  const cv = document.getElementById(id);
+  const ctx = cv.getContext('2d');
+  let drawing = false, last = null;
+  const start = e => { drawing = true; last = pos(e); };
+  const end   = () => { drawing = false; last = null; };
+  const move  = e => {
+    if (!drawing) return;
+    const p = pos(e);
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#111';
+    ctx.beginPath();
+    ctx.moveTo(last.x, last.y);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    last = p;
+  };
+  function pos(e) {
+    const rect = cv.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: clientX - rect.left, y: clientY - rect.top };
+  }
+  cv.addEventListener('mousedown', start);
+  cv.addEventListener('mouseup', end);
+  cv.addEventListener('mouseleave', end);
+  cv.addEventListener('mousemove', move);
+  cv.addEventListener('touchstart', start, {passive:true});
+  cv.addEventListener('touchend', end);
+  cv.addEventListener('touchmove', move, {passive:true});
+}
+
+/* ========= Core ========= */
+function previewLR() {
+  if (!validate()) return;
+  const obj = collectForm();
+  pushOrUpdate(obj);
+  fillPreview(obj);
+  renderList();
+  // QR code
+  const qrNode = document.getElementById('qrcode');
+  qrNode.innerHTML = '';
+  const qrText = `LR:${obj.lrNo}|Date:${obj.lrDate}|Route:${obj.origin}→${obj.dest}|Veh:${obj.vehicleNo}|Broker:${obj.broker}`;
+  new QRCode(qrNode, { text: qrText, width: 80, height: 80 });
+}
+
+function collectForm() {
+  const lrNo = document.getElementById('lrNo').value.trim();
+  return {
+    lrNo,
+    lrDate: document.getElementById('lrDate').value,
+    consignor: document.getElementById('consignorSel').value,
+    consignee: document.getElementById('consigneeSel').value,
+    origin: document.getElementById('originSel').value,
+    dest: document.getElementById('destSel').value,
+    vehicleNo: document.getElementById('vehicleNo').value.trim(),
+    driverName: document.getElementById('driverName').value.trim(),
+    broker: document.getElementById('brokerSel').value,
+    goods: document.getElementById('goods').value.trim(),
+    remarks: document.getElementById('remarks').value.trim(),
+    sigIssuer: captureSig('sigIssuer'),
+    sigDriver: captureSig('sigDriver'),
+    brand: COMPANY_NAME,
+    gstin: COMPANY_GSTIN,
+    addr: COMPANY_ADDR,
+    ts: Date.now()
+  };
+}
+
+function pushOrUpdate(obj) {
+  const idx = db.findIndex(x => x.lrNo === obj.lrNo);
+  if (idx >= 0) db[idx] = obj; else db.push(obj);
+  localStorage.setItem(DB_KEY, JSON.stringify(db));
+}
+
+function fillPreview(o) {
+  document.getElementById('p_lrNo').textContent = o.lrNo;
+  document.getElementById('p_lrDate').textContent = o.lrDate;
+  document.getElementById('p_consignor').textContent = o.consignor;
+  document.getElementById('p_consignee').textContent = o.consignee;
+  document.getElementById('p_origin').textContent = o.origin;
+  document.getElementById('p_dest').textContent   = o.dest;
+  document.getElementById('p_vehicleNo').textContent = o.vehicleNo;
+  document.getElementById('p_driverName').textContent = o.driverName || '—';
+  document.getElementById('p_broker').textContent   = o.broker || '—';
+  document.getElementById('p_goods').textContent    = o.goods || '—';
+  document.getElementById('p_remarks').textContent  = o.remarks || '—';
+  document.getElementById('p_sigIssuer').src = o.sigIssuer;
+  document.getElementById('p_sigDriver').src = o.sigDriver;
+}
+
+function renderList() {
+  const tbody = document.getElementById('listBody');
+  tbody.innerHTML = '';
+  // sort by ts desc
+  const arr = [...db].sort((a,b)=>b.ts-a.ts).slice(0,20);
+  arr.forEach(row => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${row.lrNo}</td>
+      <td>${row.lrDate}</td>
+      <td>${row.consignor}</td>
+      <td>${row.consignee}</td>
+      <td>${row.origin}→${row.dest}</td>
+      <td>${row.vehicleNo}</td>
+      <td>${row.broker || ''}</td>
+      <td>
+        <button class="secondary" onclick="loadLR('${row.lrNo}')">Load</button>
+        <button class="secondary" onclick="dupLR('${row.lrNo}')">Duplicate</button>
+        <button class="danger" onclick="removeLR('${row.lrNo}')">Delete</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function loadLR(lrNo) {
+  const o = db.find(x => x.lrNo === lrNo);
+  if (!o) return;
+  document.getElementById('lrNo').value = o.lrNo;
+  document.getElementById('lrDate').value = o.lrDate;
+  setSelectValue('consignorSel', o.consignor);
+  setSelectValue('consigneeSel', o.consignee);
+  setSelectValue('originSel', o.origin);
+  setSelectValue('destSel', o.dest);
+  setSelectValue('brokerSel', o.broker);
+  document.getElementById('vehicleNo').value = o.vehicleNo;
+  document.getElementById('driverName').value = o.driverName || '';
+  document.getElementById('goods').value = o.goods || '';
+  document.getElementById('remarks').value = o.remarks || '';
+  restoreSig('sigIssuer', o.sigIssuer);
+  restoreSig('sigDriver', o.sigDriver);
+  fillPreview(o);
+}
+
+function setSelectValue(id, val) {
+  const sel = document.getElementById(id);
+  // if val not in options, add
+  if (val && ![...sel.options].some(o=>o.value===val)) sel.appendChild(new Option(val,val));
+  sel.value = val || '';
+}
+
+function restoreSig(id, dataUrl) {
+  clearSig(id);
+  if (!dataUrl) return;
+  const cv = document.getElementById(id);
+  const ctx = cv.getContext('2d');
+  const img = new Image();
+  img.onload = () => ctx.drawImage(img,0,0);
+  img.src = dataUrl;
+}
+
+function dupLR(lrNo) {
+  const o = db.find(x => x.lrNo === lrNo);
+  if (!o) return;
+  // new date + auto number
+  document.getElementById('lrDate').value = todayStr();
+  autoLRNo();
+  setSelectValue('consignorSel', o.consignor);
+  setSelectValue('consigneeSel', o.consignee);
+  setSelectValue('originSel', o.origin);
+  setSelectValue('destSel', o.dest);
+  setSelectValue('brokerSel', o.broker);
+  document.getElementById('vehicleNo').value = o.vehicleNo;
+  document.getElementById('driverName').value = o.driverName || '';
+  document.getElementById('goods').value = o.goods || '';
+  document.getElementById('remarks').value = o.remarks || '';
+  clearSig('sigIssuer'); clearSig('sigDriver');
+  previewLR();
+}
+
+function removeLR(lrNo) {
+  if (!confirm(`Delete LR ${lrNo}?`)) return;
+  db = db.filter(x => x.lrNo !== lrNo);
+  localStorage.setItem(DB_KEY, JSON.stringify(db));
+  renderList();
+}
+
+function deleteCurrent() {
+  const lrNo = document.getElementById('lrNo').value;
+  if (!lrNo) return;
+  removeLR(lrNo);
+  newLR();
+}
+
+function newLR() {
+  document.getElementById('lrDate').value = todayStr();
+  ['vehicleNo','driverName','goods','remarks'].forEach(id => document.getElementById(id).value = '');
+  ['consignorSel','consigneeSel','originSel','destSel','brokerSel'].forEach(id => document.getElementById(id).value = '');
+  clearSig('sigIssuer'); clearSig('sigDriver');
+  autoLRNo();
+  document.getElementById('errors').textContent = '';
+  document.getElementById('qrcode').innerHTML = '';
+  // clear preview fields
+  ['p_lrNo','p_lrDate','p_consignor','p_consignee','p_origin','p_dest','p_vehicleNo','p_driverName','p_broker','p_goods','p_remarks'].forEach(id=>{
+    document.getElementById(id).textContent = '—';
+  });
+  document.getElementById('p_sigIssuer').removeAttribute('src');
+  document.getElementById('p_sigDriver').removeAttribute('src');
+}
+
+function duplicateLR() {
+  // duplicates current form (useful before changing route etc.)
+  const obj = collectForm();
+  // assign fresh LR No
+  document.getElementById('lrDate').value = todayStr();
+  autoLRNo();
+  previewLR();
+}
+
+function shareWhatsApp() {
+  if (!validate()) return;
+  const o = collectForm();
+  const msg = `LR:${o.lrNo}\nDate:${o.lrDate}\nConsignor:${o.consignor}\nConsignee:${o.consignee}\nRoute:${o.origin}→${o.dest}\nVehicle:${o.vehicleNo}\nDriver:${o.driverName}\nBroker:${o.broker}\nGoods:${o.goods}\nRemarks:${o.remarks}`;
+  const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
+/* ========= Export ========= */
+function exportCSV() {
+  if (!db.length) return alert('No LRs to export.');
+  const cols = ['lrNo','lrDate','consignor','consignee','origin','dest','vehicleNo','driverName','broker','goods','remarks'];
+  const head = cols.join(',');
+  const lines = db.map(o => cols.map(k => `"${String(o[k]||'').replace(/"/g,'""')}"`).join(','));
+  const csv = [head, ...lines].join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'LRs.csv';
+  a.click();
+}
+
+function exportJSON() {
+  if (!db.length) return alert('No LRs to export.');
+  const blob = new Blob([JSON.stringify(db,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'LRs.json';
+  a.click();
+}
+
+function resetAllConfirm() {
+  if (!confirm('This will clear all LRs and master lists (except defaults). Continue?')) return;
+  localStorage.removeItem(DB_KEY);
+  db = [];
+  renderList();
+  alert('Cleared. Default masters kept.');
+}
+</script>
 </body>
 </html>

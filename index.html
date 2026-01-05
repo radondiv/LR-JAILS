@@ -2,641 +2,456 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Digital LR — Pro</title>
+<meta charset="utf-8" />
+<title>JAI AMBEY LOGISTICS SERVICE — Digital LR (A4 Landscape)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
-  :root {
-    --brand: #1849b5;
-    --text: #1f2937;
-    --muted: #6b7280;
-    --bg: #f7f8fb;
-    --ok: #16a34a;
-    --warn: #eab308;
-    --err: #dc2626;
-    --border: #e5e7eb;
+  :root{
+    --brand:#1849b5;
+    --text:#111;
+    --muted:#555;
+    --border:#d9d9d9;
+    --bg:#f7f8fb;
   }
-  /* Layout */
-  body { margin:0; font-family: Inter, system-ui, Segoe UI, Roboto, Arial; color:var(--text); background:var(--bg); }
-  header { background:var(--brand); color:#fff; padding:16px 24px; display:flex; align-items:center; justify-content:space-between; }
-  header h1 { margin:0; font-size:18px; font-weight:700; }
-  header small { opacity:.85; }
-  main { display:grid; grid-template-columns: 420px 1fr; gap:16px; padding:16px; }
-  .card { background:#fff; border:1px solid var(--border); border-radius:10px; box-shadow:0 1px 2px rgba(0,0,0,.04); }
-  .card h2 { margin:0; padding:12px 16px; border-bottom:1px solid var(--border); font-size:16px; }
-  .card .content { padding:12px 16px; }
-  label { display:block; font-size:12px; color:var(--muted); margin-top:10px; }
-  input, select, textarea {
-    width:100%; padding:10px 12px; font-size:14px; border:1px solid #cfd8dc; border-radius:8px; background:#fff;
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;}
+  header{background:var(--brand);color:#fff;padding:12px 16px;}
+  header h1{margin:0;font-size:18px;font-weight:800;}
+  header small{opacity:.9;}
+
+  main{display:grid;grid-template-columns:380px 1fr;gap:16px;padding:16px;}
+  .card{background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 1px 2px rgba(0,0,0,.05);}
+  .card h2{margin:0;padding:10px 14px;border-bottom:1px solid var(--border);font-size:15px;}
+  .card .content{padding:12px 14px;}
+  label{display:block;font-size:12px;color:var(--muted);margin-top:8px;}
+  input,select,textarea{width:100%;padding:9px 10px;border:1px solid #cfd8dc;border-radius:8px;background:#fff;font-size:14px;}
+  textarea{resize:vertical;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .row{display:flex;gap:8px;flex-wrap:wrap;}
+  .actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+  button{padding:9px 12px;border-radius:8px;border:1px solid var(--brand);background:var(--brand);color:#fff;font-weight:700;cursor:pointer;}
+  button.secondary{border-color:#cfd8dc;background:#fff;color:#333;}
+  .hint{font-size:12px;color:var(--muted);margin-top:4px;}
+
+  /* ===== A4 Landscape Print Layout ===== */
+  @page{size:A4 landscape;margin:10mm;}
+  #sheetWrap{padding:10px;}
+  .sheet{
+    width:277mm; /* A4 width in landscape */
+    min-height:190mm;
+    margin:0 auto;
+    background:#fff;
+    border:1px solid var(--border);
+    box-sizing:border-box;
+    padding:10mm;
+    color:#000;
   }
-  textarea { resize:vertical; }
-  .grid-2 { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
-  .grid-3 { display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; }
-  .row { display:flex; gap:8px; flex-wrap:wrap; }
-  .hint { font-size:12px; color:var(--muted); margin-top:6px; }
-  .actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
-  button {
-    padding:10px 12px; border-radius:8px; border:1px solid var(--brand);
-    background:var(--brand); color:#fff; cursor:pointer; font-weight:600;
+  .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+  .brand{
+    font-size:18px;font-weight:800;color:var(--brand);line-height:1.2;
   }
-  button.secondary { border-color:#cfd8dc; background:#fff; color:#334155; }
-  button.warn { border-color:var(--warn); background:var(--warn); }
-  button.danger { border-color:var(--err); background:var(--err); }
-  .tags { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
-  .tag { font-size:11px; border:1px solid var(--border); padding:4px 8px; border-radius:999px; background:#fafafa; }
-  .error { color:var(--err); font-size:12px; margin-top:6px; }
-  /* Preview sheet (A4) */
-  #lrPreview { padding:16px; }
-  .lr-sheet {
-    width:210mm; min-height:297mm; margin:0 auto; background:#fff; color:#000;
-    border:1px solid var(--border); box-sizing:border-box; padding:24px;
-  }
-  .lr-header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
-  .lr-brand { font-size:18px; font-weight:800; color:var(--brand); }
-  .lr-meta { text-align:right; font-size:13px; color:#111; }
-  .lr-company { font-size:12px; color:#111; margin-top:4px; }
-  .lr-section { margin-top:12px; border:1px dashed #ddd; padding:12px; }
-  .lr-section h3 { margin:0 0 8px 0; font-size:14px; color:var(--brand); }
-  .row-2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-  .row-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
-  .kv { font-size:14px; }
-  .kv span { color:var(--muted); font-size:12px; display:block; }
-  .note { font-size:12px; color:var(--muted); }
-  .qr-box { display:flex; gap:12px; align-items:center; margin-top:8px; }
-  .sig-box { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:8px; }
-  canvas { border:1px solid #cfd8dc; border-radius:8px; background:#fff; }
-  table.list { width:100%; border-collapse:collapse; font-size:13px; }
-  table.list th, table.list td { border:1px solid var(--border); padding:8px; text-align:left; }
-  table.list th { background:#fafafa; }
-  @media print {
-    header, main .card:first-child, .actions-print { display:none; }
-    body { background:#fff; }
-    .lr-sheet { border:none; box-shadow:none; }
+  .brand-sub{font-size:12px;color:#000;margin-top:2px;}
+  .company-lines{font-size:11px;color:#000;margin-top:4px;}
+  .meta{font-size:11px;text-align:right;}
+  .capsule{border:1px solid var(--border);border-radius:8px;padding:6px 10px;margin-top:6px;font-size:11px;}
+  .box{border:1px solid var(--border);border-radius:6px;padding:8px;margin-top:8px;}
+  .box h3{margin:0 0 6px 0;font-size:12px;color:var(--brand);}
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .kv{font-size:12px;}
+  .kv span{display:block;color:#666;font-size:11px;}
+  .line{border-top:1px dashed #d0d0d0;margin:6px 0;}
+
+  /* Signature lines */
+  .sign-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;}
+  .sign-box{border:1px dashed #bbb;border-radius:6px;padding:10px;height:42mm;display:flex;flex-direction:column;justify-content:flex-end;}
+  .sign-label{font-size:11px;color:#666;margin-top:auto;}
+  .sign-line{height:1px;background:#999;margin-top:20px;}
+
+  /* Print rules: hide the form, show only sheet */
+  @media print{
+    header, #formCard, .actions-print{display:none !important;}
+    .sheet{border:none;box-shadow:none;}
+    body{background:#fff;}
   }
 </style>
 </head>
 <body>
 
-<!-- Brand Config (edit these) -->
-<script>
-const COMPANY_NAME  = "Parichay Logistics";
-const COMPANY_GSTIN = "29XXXXXXXXXXXX";  // put your GSTIN or leave blank
-const COMPANY_ADDR  = "Bengaluru, Karnataka — India";
-</script>
-
 <header>
-  <div>
-    <h1>Digital LR — Pro</h1>
-    <small>Fast • Paperless • Print‑Perfect</small>
-  </div>
-  <div class="row">
-    <button class="secondary" onclick="exportCSV()">Export CSV</button>
-    <button class="secondary" onclick="exportJSON()">Export JSON</button>
-    <button class="secondary" onclick="resetAllConfirm()">Reset App</button>
-  </div>
+  <h1>Digital LR — JAI AMBEY LOGISTICS SERVICE</h1>
+  <small>Preset design · Dropdowns & inputs · A4 Landscape · Print‑perfect</small>
 </header>
 
 <main>
-  <!-- Left: Form & Masters -->
-  <section class="card">
-    <h2>LR Entry</h2>
-    <div class="content" id="formWrap">
+  <!-- === LEFT: FORM === -->
+  <section class="card" id="formCard">
+    <h2>LR Input</h2>
+    <div class="content">
       <div class="grid-2">
         <div>
-          <label>LR No. (auto)</label>
-          <input id="lrNo" placeholder="auto" readonly />
-          <div class="hint">Format: YYYYMMDD‑### (daily sequence)</div>
+          <label>CN NOTE NO. (LR No.)</label>
+          <input id="f_lrno" placeholder="e.g., 20260105-001" />
         </div>
         <div>
           <label>Date</label>
-          <input id="lrDate" type="date" />
+          <input id="f_date" type="date" />
         </div>
       </div>
 
-      <label>Consignor</label>
-      <div class="row">
-        <select id="consignorSel"></select>
-        <button class="secondary" type="button" onclick="promptMaster('consignors')">+ Add</button>
-      </div>
+      <label>Consignor's Name & Address</label>
+      <textarea id="f_consignor" rows="3" placeholder="Name, address, GSTIN"></textarea>
 
-      <label>Consignee</label>
-      <div class="row">
-        <select id="consigneeSel"></select>
-        <button class="secondary" type="button" onclick="promptMaster('consignees')">+ Add</button>
+      <label>Consignee's Name & Address</label>
+      <textarea id="f_consignee" rows="3" placeholder="Name, address, GSTIN"></textarea>
+
+      <div class="grid-2">
+        <div>
+          <label>From</label>
+          <input id="f_from" placeholder="Origin city" />
+        </div>
+        <div>
+          <label>To</label>
+          <input id="f_to" placeholder="Destination city" />
+        </div>
       </div>
 
       <div class="grid-2">
         <div>
-          <label>Origin City</label>
-          <div class="row">
-            <select id="originSel"></select>
-            <button class="secondary" type="button" onclick="promptMaster('cities')">+ Add</button>
-          </div>
+          <label>Invoice No.</label>
+          <input id="f_invno" />
         </div>
         <div>
-          <label>Destination City</label>
-          <div class="row">
-            <select id="destSel"></select>
-            <button class="secondary" type="button" onclick="promptMaster('cities')">+ Add</button>
+          <label>Invoice Date</label>
+          <input id="f_invdate" type="date" />
+        </div>
+      </div>
+
+      <label>Sales Tax Permit No.</label>
+      <input id="f_stpermit" />
+
+      <div class="box" style="border:none;padding:0;margin-top:8px;">
+        <label>INSURANCE — Customer has stated that:</label>
+        <div class="row">
+          <label><input type="radio" name="f_insured" value="Not Insured" checked /> Not Insured</label>
+          <label><input type="radio" name="f_insured" value="Insured" /> Insured</label>
+        </div>
+        <div class="grid-3">
+          <div>
+            <label>Company</label>
+            <input id="f_ins_company" />
           </div>
+          <div>
+            <label>Policy No.</label>
+            <input id="f_ins_policy" />
+          </div>
+          <div>
+            <label>Amount</label>
+            <input id="f_ins_amount" />
+          </div>
+        </div>
+        <div class="grid-2">
+          <div>
+            <label>Risk</label>
+            <input id="f_ins_risk" />
+          </div>
+          <div>
+            <label>Insurance Date</label>
+            <input id="f_ins_date" type="date" />
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label>PACKING / PKG. / QTY / MATERIAL TYPE</label>
+          <textarea id="f_packing" rows="3"></textarea>
+        </div>
+        <div>
+          <label>Description (said to contain)</label>
+          <textarea id="f_desc" rows="3"></textarea>
+          <label style="margin-top:6px;">Actual Weight</label>
+          <input id="f_weight" placeholder="e.g., 1500 kg" />
         </div>
       </div>
 
       <div class="grid-3">
         <div>
-          <label>Vehicle No.</label>
-          <input id="vehicleNo" placeholder="KA-01-AB-1234" />
-        </div>
-        <div>
-          <label>Driver Name</label>
-          <input id="driverName" placeholder="Driver name" />
-        </div>
-        <div>
-          <label>Broker</label>
+          <label>FREIGHT</label>
           <div class="row">
-            <select id="brokerSel"></select>
-            <button class="secondary" type="button" onclick="promptMaster('brokers')">+ Add</button>
+            <label><input type="radio" name="f_freight" value="TBB" checked /> TBB</label>
+            <label><input type="radio" name="f_freight" value="PAID" /> PAID</label>
+            <label><input type="radio" name="f_freight" value="TO PAY" /> TO PAY</label>
           </div>
+        </div>
+        <div>
+          <label>Vehicle Type</label>
+          <input id="f_vehicletype" placeholder="e.g., 32 ft container" />
+        </div>
+        <div>
+          <label>Charges (₹)</label>
+          <input id="f_charges" />
         </div>
       </div>
 
-      <label>Goods Description</label>
-      <textarea id="goods" rows="3" placeholder="Items, qty, weight, packaging"></textarea>
-
-      <label>Remarks (Optional)</label>
-      <textarea id="remarks" rows="2" placeholder="Special instructions or notes"></textarea>
+      <div class="grid-3">
+        <div>
+          <label>Wt.</label>
+          <input id="f_wt" placeholder="e.g., 12 MT" />
+        </div>
+        <div>
+          <label>Remarks</label>
+          <input id="f_remarks" />
+        </div>
+        <div>
+          <label>Value (₹)</label>
+          <input id="f_value" />
+        </div>
+      </div>
 
       <div class="grid-2">
         <div>
-          <label>Issuer Signature (draw)</label>
-          <canvas id="sigIssuer" width="300" height="120"></canvas>
-          <div class="row">
-            <button class="secondary" type="button" onclick="clearSig('sigIssuer')">Clear</button>
-          </div>
+          <label>Vehicle No.</label>
+          <input id="f_vehicleno" placeholder="KA-01-AB-1234" />
         </div>
         <div>
-          <label>Driver/Receiver Signature (draw)</label>
-          <canvas id="sigDriver" width="300" height="120"></canvas>
-          <div class="row">
-            <button class="secondary" type="button" onclick="clearSig('sigDriver')">Clear</button>
-          </div>
+          <label>Service Tax Payable by</label>
+          <select id="f_stpay">
+            <option>Consignee</option>
+            <option>Consignor</option>
+            <option>Transporter</option>
+          </select>
         </div>
       </div>
 
       <div class="actions">
-        <button onclick="previewLR()">Preview</button>
-        <button class="secondary" type="button" onclick="newLR()">New LR</button>
-        <button class="secondary" type="button" onclick="duplicateLR()">Duplicate</button>
-        <button class="warn" type="button" onclick="shareWhatsApp()">WhatsApp Text</button>
-        <button class="danger" type="button" onclick="deleteCurrent()">Delete LR</button>
+        <button onclick="preview()">Preview LR</button>
+        <button class="secondary" onclick="window.print()">Print / Save PDF</button>
+        <button class="secondary" onclick="clearForm()">Clear</button>
+        <button class="secondary" onclick="saveDefaults()">Save Defaults</button>
+        <button class="secondary" onclick="loadDefaults()">Load Defaults</button>
       </div>
-      <div id="errors" class="error"></div>
-
-      <div class="tags">
-        <span class="tag">Auto numbering</span>
-        <span class="tag">Masters: consignor/consignee/cities/brokers</span>
-        <span class="tag">Canvas signature</span>
-        <span class="tag">QR code</span>
-        <span class="tag">Export CSV/JSON</span>
-      </div>
+      <p class="hint">Tip: Save defaults to keep common values (cities, standard remarks) for next time.</p>
     </div>
   </section>
 
-  <!-- Right: Print Preview & Recent LRs -->
-  <section class="card">
+  <!-- === RIGHT: PRINT SHEET (A4 Landscape) === -->
+  <section class="card" id="sheetCard">
     <h2>Print Preview</h2>
-    <div class="content">
-      <div class="lr-sheet" id="lrSheet">
-        <div class="lr-header">
+    <div class="content" id="sheetWrap">
+      <div class="sheet" id="sheet">
+        <!-- Header -->
+        <div class="topbar">
           <div>
-            <div class="lr-brand" id="p_brand">Parichay Logistics — Lorry Receipt</div>
-            <div class="lr-company" id="p_company">
-              GSTIN: <span id="p_gstin">—</span> · <span id="p_addr">—</span>
+            <div class="brand">JAI AMBEY LOGISTICS SERVICE</div>
+            <div class="brand-sub">FLEET OWNER &amp; TRANSPORT CONTRACTOR</div>
+            <div class="company-lines">
+              Ground Floor, No.33, Dasanapura Hobli, Tumakur Road, 1st Main, Madanayakanahalli Village,
+              Near Shivaganga Hospital, Bengaluru Urban, Karnataka, 562162<br/>
+              E-Mail: jaiambey.logisticsservice@gmail.com &nbsp;&nbsp; Mob: 8951746209, 9513240005<br/>
+              Our PAN No.: ANOPR7138P &nbsp;&nbsp; GSTIN: 29ANOPR7138P2ZS
             </div>
           </div>
-          <div class="lr-meta">
-            <div><strong>LR No:</strong> <span id="p_lrNo">—</span></div>
-            <div><strong>Date:</strong> <span id="p_lrDate">—</span></div>
-            <div class="qr-box">
-              <div id="qrcode"></div>
-              <div class="note">Scan to verify LR details</div>
-            </div>
+          <div class="meta">
+            <div><strong>CONSIGNEE COPY</strong></div>
+            <div><strong>AT OWNER'S RISK</strong></div>
+            <div class="capsule"><strong>CN NOTE NO.:</strong> <span id="p_lrno">—</span></div>
+            <div class="capsule"><strong>Date:</strong> <span id="p_date">—</span></div>
           </div>
         </div>
 
-        <div class="lr-section">
-          <h3>Parties</h3>
+        <!-- CAUTION -->
+        <div class="capsule" style="margin-top:8px;">
+          <strong>CAUTION!</strong> This consignment will not be detained, diverted, re-routed or re-booked without Consignee's Bank's written permission and will be delivered at the destination.
+        </div>
+
+        <!-- NOTICE -->
+        <div class="capsule">
+          <strong>NOTICE:</strong> The Consignment covered by this set of special Lorry Receipt form shall be stored at the destination under the control of the Transport Operator and shall be delivered to or to the Order of the Consignee Bank whose name is mentioned in the Lorry Receipt. It will under no circumstances be delivered to anyone without the written authority from the Consignee Bank or its order endorsed on the Consignee Copy or on a separate Letter of Authority.
+        </div>
+
+        <!-- Consignor / Consignee -->
+        <div class="box">
+          <h3>Consignor &amp; Consignee</h3>
           <div class="row-2">
-            <div class="kv"><span>Consignor</span><div id="p_consignor">—</div></div>
-            <div class="kv"><span>Consignee</span><div id="p_consignee">—</div></div>
+            <div class="kv"><span>Consignor's Name &amp; Address</span><div id="p_consignor">—</div></div>
+            <div class="kv"><span>Consignee's Name &amp; Address</span><div id="p_consignee">—</div></div>
           </div>
         </div>
 
-        <div class="lr-section">
-          <h3>Route & Vehicle</h3>
+        <!-- Route / Invoice -->
+        <div class="box">
+          <h3>Route &amp; Invoice</h3>
           <div class="row-3">
-            <div class="kv"><span>Origin</span><div id="p_origin">—</div></div>
-            <div class="kv"><span>Destination</span><div id="p_dest">—</div></div>
-            <div class="kv"><span>Vehicle No.</span><div id="p_vehicleNo">—</div></div>
+            <div class="kv"><span>From</span><div id="p_from">—</div></div>
+            <div class="kv"><span>To</span><div id="p_to">—</div></div>
+            <div class="kv"><span>Sales Tax Permit No.</span><div id="p_stpermit">—</div></div>
           </div>
-          <div class="row-3" style="margin-top:8px;">
-            <div class="kv"><span>Driver</span><div id="p_driverName">—</div></div>
-            <div class="kv"><span>Broker</span><div id="p_broker">—</div></div>
-            <div class="kv"><span>—</span></div>
+          <div class="row-3" style="margin-top:6px;">
+            <div class="kv"><span>Invoice No.</span><div id="p_invno">—</div></div>
+            <div class="kv"><span>Invoice Date</span><div id="p_invdate">—</div></div>
+            <div class="kv"><span>Service Tax Payable by</span><div id="p_stpay">—</div></div>
           </div>
         </div>
 
-        <div class="lr-section">
-          <h3>Goods</h3>
-          <div class="kv" id="p_goods">—</div>
+        <!-- Insurance -->
+        <div class="box">
+          <h3>INSURANCE</h3>
+          <div class="row-3">
+            <div class="kv"><span>Customer has stated that</span><div id="p_insured">Not Insured</div></div>
+            <div class="kv"><span>Company</span><div id="p_ins_company">—</div></div>
+            <div class="kv"><span>Policy No.</span><div id="p_ins_policy">—</div></div>
+          </div>
+          <div class="row-3" style="margin-top:6px;">
+            <div class="kv"><span>Amount</span><div id="p_ins_amount">—</div></div>
+            <div class="kv"><span>Risk</span><div id="p_ins_risk">—</div></div>
+            <div class="kv"><span>Date</span><div id="p_ins_date">—</div></div>
+          </div>
         </div>
 
-        <div class="lr-section">
-          <h3>Remarks</h3>
-          <div class="kv" id="p_remarks">—</div>
+        <!-- Packing / Description / Weight -->
+        <div class="box">
+          <h3>Packing &amp; Description</h3>
+          <div class="row-2">
+            <div class="kv"><span>PACKING / PKG. / QTY / MATERIAL TYPE</span><div id="p_packing">—</div></div>
+            <div class="kv"><span>Description (said to contain)</span><div id="p_desc">—</div></div>
+          </div>
+          <div class="row-3" style="margin-top:6px;">
+            <div class="kv"><span>Actual Weight</span><div id="p_weight">—</div></div>
+            <div class="kv"><span>Wt.</span><div id="p_wt">—</div></div>
+            <div class="kv"><span>Vehicle Type</span><div id="p_vehicletype">—</div></div>
+          </div>
         </div>
 
-        <div class="lr-section">
+        <!-- Freight / Charges / Remarks / Value / Vehicle No. -->
+        <div class="box">
+          <h3>Freight &amp; Charges</h3>
+          <div class="row-3">
+            <div class="kv"><span>FREIGHT</span><div id="p_freight">TBB</div></div>
+            <div class="kv"><span>Charges (₹)</span><div id="p_charges">—</div></div>
+            <div class="kv"><span>Remarks</span><div id="p_remarks">—</div></div>
+          </div>
+          <div class="row-3" style="margin-top:6px;">
+            <div class="kv"><span>Value (₹)</span><div id="p_value">—</div></div>
+            <div class="kv"><span>Vehicle No.</span><div id="p_vehicleno">—</div></div>
+            <div class="kv"><span>GSTIN</span><div>29ANOPR7138P2ZS</div></div>
+          </div>
+          <div class="line"></div>
+          <div class="kv" style="font-size:11px;color:#555;">
+            Carriers are not responsible for leakage &amp; breakage &amp; damage
+          </div>
+        </div>
+
+        <!-- Signatures -->
+        <div class="box">
           <h3>Signatures</h3>
-          <div class="sig-box">
-            <div>
-              <span class="note">Issued By</span>
-              <img id="p_sigIssuer" alt="issuer sign" style="max-width:300px; max-height:120px;" />
+          <div class="sign-row">
+            <div class="sign-box">
+              <div class="sign-label">Issued By (Authorized Signatory)</div>
+              <div class="sign-line"></div>
             </div>
-            <div>
-              <span class="note">Driver / Receiver</span>
-              <img id="p_sigDriver" alt="driver sign" style="max-width:300px; max-height:120px;" />
+            <div class="sign-box">
+              <div class="sign-label">Driver / Receiver (Signature &amp; Stamp)</div>
+              <div class="sign-line"></div>
             </div>
+          </div>
+          <div style="text-align:right;margin-top:6px;font-size:12px;">
+            For <strong>JAI AMBEY LOGISTICS SERVICE</strong>
           </div>
         </div>
 
-        <p class="note">This LR is system‑generated. For queries, contact support@parichay‑logistics.in</p>
       </div>
-
       <div class="actions actions-print" style="margin-top:12px;">
         <button onclick="window.print()">Print / Save PDF</button>
-      </div>
-
-      <h2 style="margin-top:20px;">Recent LRs</h2>
-      <div class="content">
-        <table class="list" id="listTable">
-          <thead>
-            <tr>
-              <th>LR No</th><th>Date</th><th>Consignor</th><th>Consignee</th><th>Route</th><th>Vehicle</th><th>Broker</th><th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="listBody"></tbody>
-        </table>
       </div>
     </div>
   </section>
 </main>
 
-<!-- QR Code library (tiny) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-RW6S6aX8I7R7kIYSPcYJ8DpoUcbYlqBsk9fP5QZsnHJRQ5qXH3xTL6ZyEeI8l2gA5iJvQyH2w6sdIh0C0+8NVA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
 <script>
-/* ========= State & Storage ========= */
-const DB_KEY = 'lrProDB';
-const MASTER_KEY = 'lrProMasters';
-let db = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
-let masters = JSON.parse(localStorage.getItem(MASTER_KEY) || '{}');
-const todayStr = () => new Date().toISOString().slice(0,10);
-
-const defaultMasters = {
-  consignors: ["ACME Foods Pvt Ltd — GSTIN 29AAAAA0000A1Z5", "MegaMart Ltd — GSTIN 29BBBBB1111B2Z6"],
-  consignees: ["FreshBazaar Warehousing", "SuperChain Distribution Center"],
-  cities: ["Bengaluru","Mumbai","Chennai","Hyderabad","Pune","Delhi"],
-  brokers: ["Suresh Trans Brokers","Ravi Logistics Brokers","Meena Freight Links"]
-};
-
-/* ========= Init ========= */
-window.addEventListener('DOMContentLoaded', () => {
-  // Brand display
-  document.getElementById('p_gstin').textContent = COMPANY_GSTIN || '—';
-  document.getElementById('p_addr').textContent  = COMPANY_ADDR;
-  document.getElementById('p_brand').textContent = `${COMPANY_NAME} — Lorry Receipt`;
-
-  // Masters merge
-  masters = { ...defaultMasters, ...masters };
-  localStorage.setItem(MASTER_KEY, JSON.stringify(masters));
-
-  // Fill selects
-  fillSelect('consignorSel', masters.consignors);
-  fillSelect('consigneeSel', masters.consignees);
-  fillSelect('originSel', masters.cities);
-  fillSelect('destSel', masters.cities);
-  fillSelect('brokerSel', masters.brokers);
-
-  // Defaults
-  document.getElementById('lrDate').value = todayStr();
-  autoLRNo();
-  renderList();
-
-  // Signature canvas events
-  ['sigIssuer','sigDriver'].forEach(id => setupCanvasDraw(id));
-});
-
-/* ========= Helpers ========= */
-function fillSelect(id, arr) {
-  const sel = document.getElementById(id);
-  sel.innerHTML = '';
-  sel.appendChild(new Option('Select', ''));
-  arr.forEach(v => sel.appendChild(new Option(v, v)));
-}
-
-function promptMaster(key) {
-  const v = prompt(`Add new to ${key} list:`);
-  if (!v || !v.trim()) return;
-  masters[key] = masters[key] || [];
-  masters[key].push(v.trim());
-  localStorage.setItem(MASTER_KEY, JSON.stringify(masters));
-  // re-populate
-  if (key === 'consignors') fillSelect('consignorSel', masters.consignors);
-  if (key === 'consignees') fillSelect('consigneeSel', masters.consignees);
-  if (key === 'cities') { fillSelect('originSel', masters.cities); fillSelect('destSel', masters.cities); }
-  if (key === 'brokers') fillSelect('brokerSel', masters.brokers);
-}
-
-function autoLRNo() {
-  const d = document.getElementById('lrDate').value || todayStr();
-  const compact = d.replaceAll('-',''); // YYYYMMDD
-  // count existing for this date
-  const count = db.filter(x => x.lrDate === d).length + 1;
-  const seq = String(count).padStart(3, '0');
-  document.getElementById('lrNo').value = `${compact}-${seq}`;
-}
-
-function validate() {
-  const req = ['lrNo','lrDate','consignorSel','consigneeSel','originSel','destSel','vehicleNo'];
-  const missing = req.filter(id => {
-    const el = document.getElementById(id);
-    const val = (el.tagName === 'SELECT') ? el.value : el.value.trim();
-    return !val;
+  // Fill date default
+  document.addEventListener('DOMContentLoaded',()=> {
+    const d = new Date();
+    const iso = d.toISOString().slice(0,10);
+    document.getElementById('f_date').value = iso;
   });
-  document.getElementById('errors').textContent = missing.length ? ('Please fill: ' + missing.join(', ')) : '';
-  return missing.length === 0;
-}
 
-function captureSig(id) {
-  const cv = document.getElementById(id);
-  return cv.toDataURL('image/png');
-}
+  // Map form -> preview
+  function preview(){
+    setText('p_lrno',       val('f_lrno'));
+    setText('p_date',       dateStr('f_date'));
+    setText('p_consignor',  val('f_consignor'));
+    setText('p_consignee',  val('f_consignee'));
+    setText('p_from',       val('f_from'));
+    setText('p_to',         val('f_to'));
+    setText('p_stpermit',   val('f_stpermit'));
+    setText('p_invno',      val('f_invno'));
+    setText('p_invdate',    dateStr('f_invdate'));
+    setText('p_stpay',      sel('f_stpay'));
 
-function clearSig(id) {
-  const cv = document.getElementById(id);
-  const ctx = cv.getContext('2d');
-  ctx.clearRect(0,0,cv.width,cv.height);
-}
+    setText('p_insured',    radio('f_insured'));
+    setText('p_ins_company',val('f_ins_company'));
+    setText('p_ins_policy', val('f_ins_policy'));
+    setText('p_ins_amount', val('f_ins_amount'));
+    setText('p_ins_risk',   val('f_ins_risk'));
+    setText('p_ins_date',   dateStr('f_ins_date'));
 
-function setupCanvasDraw(id) {
-  const cv = document.getElementById(id);
-  const ctx = cv.getContext('2d');
-  let drawing = false, last = null;
-  const start = e => { drawing = true; last = pos(e); };
-  const end   = () => { drawing = false; last = null; };
-  const move  = e => {
-    if (!drawing) return;
-    const p = pos(e);
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = '#111';
-    ctx.beginPath();
-    ctx.moveTo(last.x, last.y);
-    ctx.lineTo(p.x, p.y);
-    ctx.stroke();
-    last = p;
-  };
-  function pos(e) {
-    const rect = cv.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    return { x: clientX - rect.left, y: clientY - rect.top };
+    setText('p_packing',    val('f_packing'));
+    setText('p_desc',       val('f_desc'));
+    setText('p_weight',     val('f_weight'));
+
+    setText('p_freight',    radio('f_freight'));
+    setText('p_vehicletype',val('f_vehicletype'));
+    setText('p_charges',    val('f_charges'));
+    setText('p_wt',         val('f_wt'));
+    setText('p_remarks',    val('f_remarks'));
+    setText('p_value',      val('f_value'));
+    setText('p_vehicleno',  val('f_vehicleno'));
   }
-  cv.addEventListener('mousedown', start);
-  cv.addEventListener('mouseup', end);
-  cv.addEventListener('mouseleave', end);
-  cv.addEventListener('mousemove', move);
-  cv.addEventListener('touchstart', start, {passive:true});
-  cv.addEventListener('touchend', end);
-  cv.addEventListener('touchmove', move, {passive:true});
-}
+  function setText(id, t){ document.getElementById(id).textContent = t || '—'; }
+  function val(id){ return document.getElementById(id).value.trim(); }
+  function sel(id){
+    const el = document.getElementById(id);
+    return el.options[el.selectedIndex]?.text || '';
+  }
+  function radio(name){
+    const els = document.querySelectorAll(`input[name="${name}"]`);
+    for(const el of els){ if(el.checked) return el.value; }
+    return '';
+  }
+  function dateStr(id){
+    const v = document.getElementById(id).value;
+    if(!v) return '—';
+    const [y,m,d] = v.split('-');
+    return `${d}-${m}-${y}`; // DD-MM-YYYY
+  }
 
-/* ========= Core ========= */
-function previewLR() {
-  if (!validate()) return;
-  const obj = collectForm();
-  pushOrUpdate(obj);
-  fillPreview(obj);
-  renderList();
-  // QR code
-  const qrNode = document.getElementById('qrcode');
-  qrNode.innerHTML = '';
-  const qrText = `LR:${obj.lrNo}|Date:${obj.lrDate}|Route:${obj.origin}→${obj.dest}|Veh:${obj.vehicleNo}|Broker:${obj.broker}`;
-  new QRCode(qrNode, { text: qrText, width: 80, height: 80 });
-}
-
-function collectForm() {
-  const lrNo = document.getElementById('lrNo').value.trim();
-  return {
-    lrNo,
-    lrDate: document.getElementById('lrDate').value,
-    consignor: document.getElementById('consignorSel').value,
-    consignee: document.getElementById('consigneeSel').value,
-    origin: document.getElementById('originSel').value,
-    dest: document.getElementById('destSel').value,
-    vehicleNo: document.getElementById('vehicleNo').value.trim(),
-    driverName: document.getElementById('driverName').value.trim(),
-    broker: document.getElementById('brokerSel').value,
-    goods: document.getElementById('goods').value.trim(),
-    remarks: document.getElementById('remarks').value.trim(),
-    sigIssuer: captureSig('sigIssuer'),
-    sigDriver: captureSig('sigDriver'),
-    brand: COMPANY_NAME,
-    gstin: COMPANY_GSTIN,
-    addr: COMPANY_ADDR,
-    ts: Date.now()
-  };
-}
-
-function pushOrUpdate(obj) {
-  const idx = db.findIndex(x => x.lrNo === obj.lrNo);
-  if (idx >= 0) db[idx] = obj; else db.push(obj);
-  localStorage.setItem(DB_KEY, JSON.stringify(db));
-}
-
-function fillPreview(o) {
-  document.getElementById('p_lrNo').textContent = o.lrNo;
-  document.getElementById('p_lrDate').textContent = o.lrDate;
-  document.getElementById('p_consignor').textContent = o.consignor;
-  document.getElementById('p_consignee').textContent = o.consignee;
-  document.getElementById('p_origin').textContent = o.origin;
-  document.getElementById('p_dest').textContent   = o.dest;
-  document.getElementById('p_vehicleNo').textContent = o.vehicleNo;
-  document.getElementById('p_driverName').textContent = o.driverName || '—';
-  document.getElementById('p_broker').textContent   = o.broker || '—';
-  document.getElementById('p_goods').textContent    = o.goods || '—';
-  document.getElementById('p_remarks').textContent  = o.remarks || '—';
-  document.getElementById('p_sigIssuer').src = o.sigIssuer;
-  document.getElementById('p_sigDriver').src = o.sigDriver;
-}
-
-function renderList() {
-  const tbody = document.getElementById('listBody');
-  tbody.innerHTML = '';
-  // sort by ts desc
-  const arr = [...db].sort((a,b)=>b.ts-a.ts).slice(0,20);
-  arr.forEach(row => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${row.lrNo}</td>
-      <td>${row.lrDate}</td>
-      <td>${row.consignor}</td>
-      <td>${row.consignee}</td>
-      <td>${row.origin}→${row.dest}</td>
-      <td>${row.vehicleNo}</td>
-      <td>${row.broker || ''}</td>
-      <td>
-        <button class="secondary" onclick="loadLR('${row.lrNo}')">Load</button>
-        <button class="secondary" onclick="dupLR('${row.lrNo}')">Duplicate</button>
-        <button class="danger" onclick="removeLR('${row.lrNo}')">Delete</button>
-      </td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-function loadLR(lrNo) {
-  const o = db.find(x => x.lrNo === lrNo);
-  if (!o) return;
-  document.getElementById('lrNo').value = o.lrNo;
-  document.getElementById('lrDate').value = o.lrDate;
-  setSelectValue('consignorSel', o.consignor);
-  setSelectValue('consigneeSel', o.consignee);
-  setSelectValue('originSel', o.origin);
-  setSelectValue('destSel', o.dest);
-  setSelectValue('brokerSel', o.broker);
-  document.getElementById('vehicleNo').value = o.vehicleNo;
-  document.getElementById('driverName').value = o.driverName || '';
-  document.getElementById('goods').value = o.goods || '';
-  document.getElementById('remarks').value = o.remarks || '';
-  restoreSig('sigIssuer', o.sigIssuer);
-  restoreSig('sigDriver', o.sigDriver);
-  fillPreview(o);
-}
-
-function setSelectValue(id, val) {
-  const sel = document.getElementById(id);
-  // if val not in options, add
-  if (val && ![...sel.options].some(o=>o.value===val)) sel.appendChild(new Option(val,val));
-  sel.value = val || '';
-}
-
-function restoreSig(id, dataUrl) {
-  clearSig(id);
-  if (!dataUrl) return;
-  const cv = document.getElementById(id);
-  const ctx = cv.getContext('2d');
-  const img = new Image();
-  img.onload = () => ctx.drawImage(img,0,0);
-  img.src = dataUrl;
-}
-
-function dupLR(lrNo) {
-  const o = db.find(x => x.lrNo === lrNo);
-  if (!o) return;
-  // new date + auto number
-  document.getElementById('lrDate').value = todayStr();
-  autoLRNo();
-  setSelectValue('consignorSel', o.consignor);
-  setSelectValue('consigneeSel', o.consignee);
-  setSelectValue('originSel', o.origin);
-  setSelectValue('destSel', o.dest);
-  setSelectValue('brokerSel', o.broker);
-  document.getElementById('vehicleNo').value = o.vehicleNo;
-  document.getElementById('driverName').value = o.driverName || '';
-  document.getElementById('goods').value = o.goods || '';
-  document.getElementById('remarks').value = o.remarks || '';
-  clearSig('sigIssuer'); clearSig('sigDriver');
-  previewLR();
-}
-
-function removeLR(lrNo) {
-  if (!confirm(`Delete LR ${lrNo}?`)) return;
-  db = db.filter(x => x.lrNo !== lrNo);
-  localStorage.setItem(DB_KEY, JSON.stringify(db));
-  renderList();
-}
-
-function deleteCurrent() {
-  const lrNo = document.getElementById('lrNo').value;
-  if (!lrNo) return;
-  removeLR(lrNo);
-  newLR();
-}
-
-function newLR() {
-  document.getElementById('lrDate').value = todayStr();
-  ['vehicleNo','driverName','goods','remarks'].forEach(id => document.getElementById(id).value = '');
-  ['consignorSel','consigneeSel','originSel','destSel','brokerSel'].forEach(id => document.getElementById(id).value = '');
-  clearSig('sigIssuer'); clearSig('sigDriver');
-  autoLRNo();
-  document.getElementById('errors').textContent = '';
-  document.getElementById('qrcode').innerHTML = '';
-  // clear preview fields
-  ['p_lrNo','p_lrDate','p_consignor','p_consignee','p_origin','p_dest','p_vehicleNo','p_driverName','p_broker','p_goods','p_remarks'].forEach(id=>{
-    document.getElementById(id).textContent = '—';
-  });
-  document.getElementById('p_sigIssuer').removeAttribute('src');
-  document.getElementById('p_sigDriver').removeAttribute('src');
-}
-
-function duplicateLR() {
-  // duplicates current form (useful before changing route etc.)
-  const obj = collectForm();
-  // assign fresh LR No
-  document.getElementById('lrDate').value = todayStr();
-  autoLRNo();
-  previewLR();
-}
-
-function shareWhatsApp() {
-  if (!validate()) return;
-  const o = collectForm();
-  const msg = `LR:${o.lrNo}\nDate:${o.lrDate}\nConsignor:${o.consignor}\nConsignee:${o.consignee}\nRoute:${o.origin}→${o.dest}\nVehicle:${o.vehicleNo}\nDriver:${o.driverName}\nBroker:${o.broker}\nGoods:${o.goods}\nRemarks:${o.remarks}`;
-  const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
-  window.open(url, '_blank');
-}
-
-/* ========= Export ========= */
-function exportCSV() {
-  if (!db.length) return alert('No LRs to export.');
-  const cols = ['lrNo','lrDate','consignor','consignee','origin','dest','vehicleNo','driverName','broker','goods','remarks'];
-  const head = cols.join(',');
-  const lines = db.map(o => cols.map(k => `"${String(o[k]||'').replace(/"/g,'""')}"`).join(','));
-  const csv = [head, ...lines].join('\n');
-  const blob = new Blob([csv], {type:'text/csv'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'LRs.csv';
-  a.click();
-}
-
-function exportJSON() {
-  if (!db.length) return alert('No LRs to export.');
-  const blob = new Blob([JSON.stringify(db,null,2)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'LRs.json';
-  a.click();
-}
-
-function resetAllConfirm() {
-  if (!confirm('This will clear all LRs and master lists (except defaults). Continue?')) return;
-  localStorage.removeItem(DB_KEY);
-  db = [];
-  renderList();
-  alert('Cleared. Default masters kept.');
-}
+  function clearForm(){
+    document.querySelectorAll('#formCard input, #formCard textarea, #formCard select')
+      .forEach(el=>{
+        if(el.type==='date'){ el.value=''; }
+        else if(el.type==='radio'){ el.checked = false; }
+        else{ el.value=''; }
+      });
+    // reset radios defaults
+    document.querySelector('input[name="f_insured"][value="Not Insured"]').checked = true;
+    document.querySelector('input[name="f_freight"][value="TBB"]').checked = true;
+  }
+  function saveDefaults(){
+    const keys = ['f_from','f_to','f_vehicletype','f_remarks'];
+    const obj = {};
+    keys.forEach(k=>obj[k]=val(k));
+    localStorage.setItem('jaiambey_lr_defaults', JSON.stringify(obj));
+    alert('Defaults saved.');
+  }
+  function loadDefaults(){
+    const obj = JSON.parse(localStorage.getItem('jaiambey_lr_defaults') || '{}');
+    Object.entries(obj).forEach(([k,v])=>{
+      const el = document.getElementById(k);
+      if(el) el.value = v || '';
+    });
+    alert('Defaults loaded.');
+  }
 </script>
 </body>
 </html>
